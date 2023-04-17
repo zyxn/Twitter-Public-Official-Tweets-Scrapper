@@ -11,6 +11,7 @@ for i, tweet in enumerate(sntwitter.TwitterSearchScraper(query).get_items()):
     date = tweet.date.strftime('%Y-%m-%d %H:%M:%S')
     username = tweet.username
     text = tweet.content
+    #mastah ami
     # print(tweet.user.descriptionLinks)
     birthday = tweet.user.birthdate if hasattr(tweet.user, 'birthdate') else ''
     location = tweet.user.location if hasattr(tweet.user, 'location') else ''
