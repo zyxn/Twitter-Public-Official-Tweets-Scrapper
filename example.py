@@ -1,24 +1,26 @@
 import snscrape.modules.twitter as sntwitter
-import numpy as np
 import pandas as pd
 
-query = "(to:puanmaharani_ri) until:2023-04-16 since:2022-04-16 filter:replies"
-limit = 200
+# Set search parameters
+candidates = ['Prabowo Subianto', 'Agus Harimurti Yudhoyono', 'Anies Baswedan','Puan Maharani']
+query = f"{' OR '.join(candidates)} since:2022-01-01 until:2023-04-17"
 
-tweets = np.empty((limit, 3), dtype=object)
-index = 0
-
-for tweet in sntwitter.TwitterSearchScraper(query).get_items():
-    if index == limit:
+# Scrape tweets
+tweets = []
+for i, tweet in enumerate(sntwitter.TwitterSearchScraper(query).get_items()):
+    date = tweet.date.strftime('%Y-%m-%d %H:%M:%S')
+    username = tweet.username
+    text = tweet.content
+    # print(tweet.user.descriptionLinks)
+    birthday = tweet.user.birthdate if hasattr(tweet.user, 'birthdate') else ''
+    location = tweet.user.location if hasattr(tweet.user, 'location') else ''
+    tweets.append((date, username, text, birthday, location))
+    
+    # Limit number of tweets to 1000 for demonstration purposes
+    if i >= 1000:
         break
-    else:
-        tweets[index, 0] = tweet.date
-        tweets[index, 1] = tweet.username
-        tweets[index, 2] = tweet.content
-        index += 1
 
-tweets = tweets[:index, :]  # menghapus baris yang tidak terisi pada array
-
-df = pd.DataFrame(tweets, columns=['Date', 'User', 'Tweet'])
-df['Tweet'] = df['Tweet'].apply(lambda x: x.encode('ascii', 'ignore').decode('ascii'))
+# Convert to pandas dataframe
+df = pd.DataFrame(tweets, columns=['date', 'username', 'text', 'birthday', 'location'])
+print(df.head(5))
 df.to_csv("hasil.csv", sep=";", encoding="utf-8", index=False)
